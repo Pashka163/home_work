@@ -1,69 +1,82 @@
 # Задача 1
 
-class Restricted:
-    def __getattribute__(self, name):
-        if name.startswith('_secret_'):
-            raise AttributeError("Доступ запрещен")
-        return super().__getattribute__(name)
+class Student:
+    def __init__(self, name, grade):
+        self.name = name
+        self.grade = grade
 
-r = Restricted()
-r._secret_data = 123
-try:
-    print(r._secret_data)
-except AttributeError as e:
-    print(e)
+    def __eq__(self, other):
+        if isinstance(other, Student):
+            return self.grade == other.grade
+        return NotImplemented
+
+    def __lt__(self, other):
+        if isinstance(other, Student):
+            return self.grade < other.grade
+        return NotImplemented
+
+    def __gt__(self, other):
+        if isinstance(other, Student):
+            return self.grade > other.grade
+        return NotImplemented
+
+    def __le__(self, other):
+        if isinstance(other, Student):
+            return self.grade <= other.grade
+        return NotImplemented
+
+    def __ge__(self, other):
+        if isinstance(other, Student):
+            return self.grade >= other.grade
+        return NotImplemented
+
+student1 = Student("Иван", 4)
+student2 = Student("Мария", 5)
+student3 = Student("Алексей", 4)
+
+print(student1 == student3)
+print(student1 < student2)
+print(student2 > student1)
+print(student1 >= student3)
 
 # Задача 2
 
-class Dynamic:
-    def __getattr__(self, name):
-        if name.startswith('square_'):
-            num = int(name[7:])
-            return num * num
-        raise AttributeError("Нет такого атрибута")
+class TriangleChecker:
+    def __init__(self, sides):
+        self.sides = sides
 
-d = Dynamic()
-print(d.square_5)
-print(d.square_3)
+    def is_triangle(self):
+        if not all(isinstance(side, (int, float)) for side in self.sides):
+            return "Нужно вводить только числа!"
+        a, b, c = sorted(self.sides)
+        if a + b > c:
+            return "Ура, можно построить треугольник!"
+        else:
+            return "Нет, из этого треугольник не сделать."
+
+checker1 = TriangleChecker([3, 4, 5])
+print(checker1.is_triangle())
 
 # Задача 3
 
-class Immutable:
-    def __setattr__(self, name, value):
-        if name.startswith('_lock_'):
-            raise AttributeError("Нельзя изменять")
-        super().__setattr__(name, value)
+class Nikola:
+    __slots__ = ['name', 'age']
 
-i = Immutable()
-i._lock_data = 100
+    def __init__(self, name, age):
+        self.age = age
+        if name == "Николай":
+            self.name = name
+        else:
+            self.name = f"Я не {name}, а Николай"
+
+person1 = Nikola("Максим", 25)
+print(person1.name)
+print(person1.age)
+
+person2 = Nikola("Николай", 30)
+print(person2.name)
+
 try:
-    i._lock_data = 200
+    person1.surname = "Петров"
 except AttributeError as e:
-    print(e)
-
-# Задача 4
-
-class Lowercase:
-    def __setattr__(self, name, value):
-        super().__setattr__(name.lower(), value)
-
-l = Lowercase()
-l.MyAttr = "value"
-print(l.myattr)
-
-# Задача 5
-
-class Restricted:
-    allowed = ['name', 'age']
-
-    def __setattr__(self, name, value):
-        if name not in self.allowed:
-            raise AttributeError("Атрибут запрещен")
-        super().__setattr__(name, value)
-
-p = Restricted()
-p.name = "Alice"
-try:
-    p.address = "Street"
-except AttributeError as e:
-    print(e)
+    print(f"Ошибка: {e}")
